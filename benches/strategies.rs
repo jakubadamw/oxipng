@@ -1,49 +1,39 @@
-#![feature(test)]
-
-extern crate oxipng;
-extern crate test;
-
 use std::path::PathBuf;
 
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use oxipng::{internal_tests::*, *};
-use test::Bencher;
 
-#[bench]
-fn filters_minsum(b: &mut Bencher) {
-    let input = test::black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
+fn strategies_benchmarks(c: &mut Criterion) {
+    let input = black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
     let png = PngData::new(&input, &Options::default()).unwrap();
+    c.bench_function("filters_minsum", |b| {
+        b.iter(|| png.raw.filter_image(RowFilter::MinSum, false))
+    });
 
-    b.iter(|| png.raw.filter_image(RowFilter::MinSum, false));
+    let input = black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
+    let png = PngData::new(&input, &Options::default()).unwrap();
+    c.bench_function("filters_entropy", |b| {
+        b.iter(|| png.raw.filter_image(RowFilter::Entropy, false))
+    });
+
+    let input = black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
+    let png = PngData::new(&input, &Options::default()).unwrap();
+    c.bench_function("filters_bigrams", |b| {
+        b.iter(|| png.raw.filter_image(RowFilter::Bigrams, false))
+    });
+
+    let input = black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
+    let png = PngData::new(&input, &Options::default()).unwrap();
+    c.bench_function("filters_bigent", |b| {
+        b.iter(|| png.raw.filter_image(RowFilter::BigEnt, false))
+    });
+
+    let input = black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
+    let png = PngData::new(&input, &Options::default()).unwrap();
+    c.bench_function("filters_brute", |b| {
+        b.iter(|| png.raw.filter_image(RowFilter::Brute, false))
+    });
 }
 
-#[bench]
-fn filters_entropy(b: &mut Bencher) {
-    let input = test::black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
-    let png = PngData::new(&input, &Options::default()).unwrap();
-
-    b.iter(|| png.raw.filter_image(RowFilter::Entropy, false));
-}
-
-#[bench]
-fn filters_bigrams(b: &mut Bencher) {
-    let input = test::black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
-    let png = PngData::new(&input, &Options::default()).unwrap();
-
-    b.iter(|| png.raw.filter_image(RowFilter::Bigrams, false));
-}
-
-#[bench]
-fn filters_bigent(b: &mut Bencher) {
-    let input = test::black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
-    let png = PngData::new(&input, &Options::default()).unwrap();
-
-    b.iter(|| png.raw.filter_image(RowFilter::BigEnt, false));
-}
-
-#[bench]
-fn filters_brute(b: &mut Bencher) {
-    let input = test::black_box(PathBuf::from("tests/files/rgb_8_should_be_rgb_8.png"));
-    let png = PngData::new(&input, &Options::default()).unwrap();
-
-    b.iter(|| png.raw.filter_image(RowFilter::Brute, false));
-}
+criterion_group!(benches, strategies_benchmarks);
+criterion_main!(benches);

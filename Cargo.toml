@@ -36,6 +36,27 @@ required-features = ["binary"]
 [[bench]]
 name = "zopfli"
 required-features = ["zopfli"]
+harness = false
+
+[[bench]]
+name = "deflate"
+harness = false
+
+[[bench]]
+name = "filters"
+harness = false
+
+[[bench]]
+name = "interlacing"
+harness = false
+
+[[bench]]
+name = "reductions"
+harness = false
+
+[[bench]]
+name = "strategies"
+harness = false
 
 [dependencies]
 zopfli = { version = "0.8.2", optional = true, default-features = false, features = ["std", "zlib"] }
@@ -78,6 +99,9 @@ optional = true
 default-features = false
 features = ["png"]
 version = "0.25.6"
+
+[dev-dependencies]
+criterion = "0.5"
 
 [features]
 binary = ["dep:clap", "dep:glob", "dep:env_logger"]
